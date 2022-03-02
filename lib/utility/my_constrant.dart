@@ -9,9 +9,14 @@ class MyConstant {
   static Color light = const Color(0xffcd5bdf);
 
   //method
+  BoxDecoration curBorder() => BoxDecoration(
+        border: Border.all(color: MyConstant.dark),
+        borderRadius: BorderRadius.circular(10),
+      );
+
   BoxDecoration painBox() => BoxDecoration(
-    color: light.withOpacity(0.3),
-  );
+        color: light.withOpacity(0.3),
+      );
 
   TextStyle h1Style() => TextStyle(
         fontSize: 30,
