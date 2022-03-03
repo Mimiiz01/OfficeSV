@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:officesv/utility/my_constrant.dart';
+import 'package:officesv/widgets/show_button.dart';
 import 'package:officesv/widgets/show_form.dart';
 import 'package:officesv/widgets/show_image.dart';
 import 'package:officesv/widgets/show_text.dart';
@@ -26,6 +29,20 @@ class _AddJobState extends State<AddJob> {
   String? chooseAgree, addDate;
 
   var itemChooses = <bool>[false, false, false];
+  DateTime? dateTime;
+  DateFormat dateFormat = DateFormat('dd/MM/yyyy');
+
+  File? file;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    dateTime = DateTime.now();
+    setState(() {
+      addDate = dateFormat.format(dateTime!);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,6 +66,7 @@ class _AddJobState extends State<AddJob> {
               newAgree(),
               chooseItem(),
               newAddDate(),
+              ShowButton(label: 'Add Job to Server', pressFunc: () {}),
             ],
           ),
         )),
@@ -57,12 +75,8 @@ class _AddJobState extends State<AddJob> {
   }
 
   Container newAddDate() {
-    DateTime dateTime = DateTime.now();
-    DateFormat dateFormat = DateFormat('dd/MM/yyyy');
-    addDate = dateFormat.format(dateTime);
-
     return Container(
-      margin: EdgeInsets.only(top: 16, bottom: 50),
+      margin: const EdgeInsets.only(top: 16, bottom: 50),
       padding: const EdgeInsets.all(16),
       decoration: MyConstant().curBorder(),
       child: Column(
@@ -77,7 +91,20 @@ class _AddJobState extends State<AddJob> {
             child: ListTile(
               title: ShowText(label: addDate ?? 'dd / MM / yyyy'),
               trailing: IconButton(
-                onPressed: () {},
+                onPressed: () async {
+                  DateTime? chooseDateTime = await showDatePicker(
+                      context: context,
+                      initialDate: dateTime!,
+                      firstDate: DateTime(dateTime!.year - 1),
+                      lastDate: DateTime(dateTime!.year + 1));
+
+                  if (chooseDateTime != null) {
+                    setState(() {
+                      addDate = dateFormat.format(chooseDateTime);
+                      print('addDate ==> $addDate');
+                    });
+                  }
+                },
                 icon: Icon(
                   Icons.calendar_month_outlined,
                   size: 36,
@@ -267,7 +294,9 @@ class _AddJobState extends State<AddJob> {
               bottom: 8,
               right: 8,
               child: IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    chooseImageDialog();
+                  },
                   icon: Icon(
                     Icons.add_a_photo,
                     size: 48,
@@ -277,4 +306,38 @@ class _AddJobState extends State<AddJob> {
           ],
         ));
   }
+
+  Future<void> chooseImageDialog() async {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: ListTile(
+          leading: const ShowImage(
+            path: 'images/picture.png',
+          ),
+          title: ShowText(
+            label: 'กรุณาเลือกรูปภาพ',
+            textStyle: MyConstant().h2Style(),
+          ),
+          subtitle: const ShowText(label: 'โดยการคลิก Camera หรือ Galler'),
+        ),
+        actions: [
+          TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                processTakePhoto();
+              },
+              child: const Text('Camera')),
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Gallery')),
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel')),
+        ],
+      ),
+    );
+  }
+
+  void processTakePhoto() {}
 }
